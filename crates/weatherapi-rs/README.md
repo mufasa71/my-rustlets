@@ -7,7 +7,7 @@ current weather data for a given city.
 ## Usage
 
 Copy [example/weather_conditions.json](example/weather_conditions.json)
-into `~/.config/weather-rs` directory.
+into `~/.config/weatherapi-rs` directory.
 
 Add *rapidapi key* into `~/.config/rapidapi.toml` (see [example/rapidapi.toml](example/rapidapi.toml)).
 
@@ -15,5 +15,5 @@ Then run the following command:
 
 ```bash
 
-weather-rs -q "London"
+weatherapi-rs -q "London"
 ```

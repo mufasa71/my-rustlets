@@ -1,5 +1,5 @@
 use clap::Parser;
-use weather_rs::{files::Cli, run};
+use weatherapi_rs::{files::Cli, run};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

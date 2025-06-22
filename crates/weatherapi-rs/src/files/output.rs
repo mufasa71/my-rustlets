@@ -16,7 +16,7 @@ struct WeatherCode {
 
 fn get_icon(weather: &Weather) -> String {
     let mut config_dir = dirs::config_dir().expect("Could not find config directory");
-    config_dir.push("weather-rs/weather_conditions.json");
+    config_dir.push("weatherapi-rs/weather_conditions.json");
     let file = File::open(config_dir).expect("Could not open file weather_conditions.json");
     let reader = BufReader::new(file);
     let weather_codes: Vec<WeatherCode> =

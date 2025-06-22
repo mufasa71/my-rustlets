@@ -1,8 +1,8 @@
-name weather-rs
-bin weather-rs
+name weatherapi-rs
+bin weatherapi-rs
 version "0.3.0"
 about "Weather CLI tool"
-usage "Usage: weather-rs [OPTIONS]"
+usage "Usage: weatherapi-rs [OPTIONS]"
 flag -q {
     long_help "City name e.g. London, Paris"
     arg <Q>

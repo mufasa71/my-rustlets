@@ -30,21 +30,21 @@ pub struct Cli {
 
 impl Cli {
     pub fn generate_usage() {
-        let cmd = Command::new("weather-rs");
+        let cmd = Command::new("weatherapi-rs");
         let mut cmd = Cli::augment_args(cmd);
 
         if cfg!(debug_assertions) {
             let mut file = File::create("docs/usage.spec.kdl").unwrap();
-            clap_usage::generate(&mut cmd, "weather-rs", &mut file);
+            clap_usage::generate(&mut cmd, "weatherapi-rs", &mut file);
         } else {
-            clap_usage::generate(&mut cmd, "weather-rs", &mut std::io::stdout());
+            clap_usage::generate(&mut cmd, "weatherapi-rs", &mut std::io::stdout());
         }
     }
 }
 
 #[test]
 fn verify_cmd() {
-    let cmd = Command::new("weather-rs");
+    let cmd = Command::new("weatherapi-rs");
     let cmd = Cli::augment_args(cmd);
 
     cmd.debug_assert();

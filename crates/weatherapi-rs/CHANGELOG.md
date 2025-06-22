@@ -55,7 +55,7 @@ All notable changes to this project will be documented in this file.
 
 ### ⚙️ Miscellaneous Tasks
 
-- Rename project from weather_polybar to weather-rs
+- Rename project from weather_polybar to weatherapi-rs
 - Generate changelog [skip-ci]
 
 ## [0.1.0] - 2025-05-01
