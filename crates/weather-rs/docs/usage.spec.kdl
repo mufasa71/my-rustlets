@@ -1,0 +1,22 @@
+name weather-rs
+bin weather-rs
+version "0.3.0"
+about "Weather CLI tool"
+usage "Usage: weather-rs [OPTIONS]"
+flag -q {
+    long_help "City name e.g. London, Paris"
+    arg <Q>
+}
+flag "-f --format" {
+    long_help "Output format"
+    arg <FORMAT> {
+        choices json compact
+    }
+}
+flag --aqi {
+    long_help "Include air quality index"
+}
+flag --usage {
+    long_help "Generate usage file in KDL format (usefull to create auto-completion)"
+}
+

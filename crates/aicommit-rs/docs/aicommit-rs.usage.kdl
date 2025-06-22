@@ -1,0 +1,10 @@
+name aicommit-rs
+bin aicommit-rs
+version "0.0.7"
+about "Uses OpenAI or Google AI to generate commit message suggestions based on the diff between the current branch and master.\nThen, you can select a commit message from the list and use it to commit your changes."
+usage "Usage: aicommit-rs [OPTIONS]"
+flag "-t --template" help="Specify a custom template" {
+    arg <FILE>
+}
+flag --usage help="Show usage"
+
