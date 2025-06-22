@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.4](https://github.com/mufasa71/my-rustlets/compare/reddit-wallpapers-v0.0.3...reddit-wallpapers-v0.0.4) - 2025-06-22
+
+### Other
+
+- move reddit-wallpapers project
+
 ## [0.0.3](https://github.com/mufasa71/reddit-wallpapers/compare/v0.0.2...v0.0.3) - 2025-06-22
 
 ### Other
