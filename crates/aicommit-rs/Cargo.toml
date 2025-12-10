@@ -9,10 +9,10 @@ description = "Small CLI AI commit generate which uses any openai enpoint"
 dirs = "6.0.0"
 dotenvy = "0.15.7"
 git2 = "0.20.1"
-openai-api-rs = "6.0.3"
+openai-api-rs = "9.0.0"
 serde = "1.0.219"
 tokio = { version = "1.44.2", features = ["full"] }
-toml = "0.8.20"
+toml = "0.9.8"
 clap = { version = "4.5.37", features = ["derive", "cargo"] }
 clap_usage = "2.0.3"
 
