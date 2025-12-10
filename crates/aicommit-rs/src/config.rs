@@ -1,3 +1,4 @@
+use std::env;
 use std::fs::File;
 use std::io::Read;
 
@@ -19,7 +20,11 @@ pub fn get_config() -> Config {
     config_file
         .read_to_string(&mut config_str)
         .expect("Error reading config file");
-    let config: Config = toml::from_str(&config_str).expect("Failed to parse config file");
+    let mut config: Config = toml::from_str(&config_str).expect("Failed to parse config file");
+
+    if let Ok(val) = env::var("OPENAI_API_KEY") {
+        config.openai_api_key = val
+    }
 
     config
 }
