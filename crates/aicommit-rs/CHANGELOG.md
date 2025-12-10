@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.9](https://github.com/mufasa71/my-rustlets/compare/aicommit-rs-v0.0.8...aicommit-rs-v0.0.9) - 2025-12-10
+
+### Added
+
+- *(config)* update API key configuration
+
 ## [0.0.8](https://github.com/mufasa71/my-rustlets/compare/aicommit-rs-v0.0.7...aicommit-rs-v0.0.8) - 2025-12-10
 
 ### Fixed
