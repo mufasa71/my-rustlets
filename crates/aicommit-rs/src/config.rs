@@ -5,8 +5,8 @@ use serde::Deserialize;
 
 #[derive(Deserialize)]
 pub struct Config {
-    pub gemini_api_key: String,
-    pub gemini_api_url: String,
+    pub openai_api_key: String,
+    pub openai_api_url: String,
     pub model_name: String,
 }
 

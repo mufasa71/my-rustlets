@@ -1,10 +1,9 @@
 use std::io::Read;
 use std::{fs::File, path::PathBuf};
 
-use openai_api_rs::v1::{
-    api::OpenAIClient,
-    chat_completion::{self, ChatCompletionRequest},
-};
+use openai_api_rs::v1::api::OpenAIClient;
+use openai_api_rs::v1::chat_completion;
+use openai_api_rs::v1::chat_completion::chat_completion::ChatCompletionRequest;
 
 use crate::config::Config;
 
@@ -24,8 +23,8 @@ pub async fn generate_commit(
 ) -> Result<String, Box<dyn std::error::Error>> {
     let system_message = "You are a commit message generator. I will provide you with a git diff, and I would like you to generate an appropriate commit message using the conventional commit format. Do not write any explanations or other words, just reply with the commit message.";
     let mut client = OpenAIClient::builder()
-        .with_endpoint(config.gemini_api_url)
-        .with_api_key(config.gemini_api_key)
+        .with_endpoint(config.openai_api_url)
+        .with_api_key(config.openai_api_key)
         .build()?;
 
     let req = ChatCompletionRequest::new(
