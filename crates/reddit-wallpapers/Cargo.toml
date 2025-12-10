@@ -4,6 +4,7 @@ version = "0.0.4"
 edition = "2024"
 license = "MIT OR Apache-2.0"
 description = "Little CLI tool allows to download top wallpapers from Reddit"
+authors = ["Shukhrat Mukimov <mukimov@gmail.com>"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
