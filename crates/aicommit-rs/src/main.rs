@@ -48,7 +48,7 @@ async fn main() {
 
     let result = generate_commit(template.replace("{{diff}}", &diff), config)
         .await
-        .expect("Error generating commit");
+        .expect_err("Error generating commit");
 
     println!("{}", result);
 }
