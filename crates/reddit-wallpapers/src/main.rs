@@ -17,15 +17,17 @@ static APP_USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_P
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
     let output = cli.output.as_deref().unwrap_or("Pictures/Wallpapers");
-    let level = match cli.debug {
-        1 => Level::Error,
-        2 => Level::Warn,
-        3 => Level::Info,
-        4 => Level::Debug,
-        5 => Level::Trace,
-        _ => Level::Error,
-    };
-    simple_logger::init_with_level(level).expect("Logger init failed");
+    if let Some(cli_log_level) = cli.log_level {
+        let log_level = match cli_log_level {
+            1 => Level::Error,
+            2 => Level::Warn,
+            3 => Level::Info,
+            4 => Level::Debug,
+            5 => Level::Trace,
+            _ => Level::Error,
+        };
+        simple_logger::init_with_level(log_level).expect("Logger init failed");
+    }
     let client = reqwest::Client::builder()
         .user_agent(APP_USER_AGENT)
         .build()?;
@@ -51,6 +53,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut set = JoinSet::new();
     let children = body.data.children;
+
+    if children.is_empty() {
+        info!("No images found");
+    }
 
     for child in children {
         let Wallpaper { url, id } = child.data;
