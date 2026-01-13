@@ -22,8 +22,8 @@ pub enum Time {
 pub struct Cli {
     #[arg(short, long)]
     pub output: Option<String>,
-    #[arg(short, long, action = clap::ArgAction::Count)]
-    pub debug: u8,
+    #[arg(long, long_help = "set the log level (1-5)")]
+    pub log_level: Option<u8>,
     #[arg(short, long, long_help = "the maximum number of items desired (default: 25, maximum: 100)", value_parser = clap::value_parser!(u8).range(1..100))]
     pub limit: Option<u8>,
     #[arg(short, value_enum)]
