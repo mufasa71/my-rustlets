@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.10](https://github.com/mufasa71/my-rustlets/compare/aicommit-rs-v0.0.9...aicommit-rs-v0.0.10) - 2026-01-13
+
+### Other
+
+- *(error)* utilize expect_err for anticipated generation failure ([#8](https://github.com/mufasa71/my-rustlets/pull/8))
+
 ## [0.0.9](https://github.com/mufasa71/my-rustlets/compare/aicommit-rs-v0.0.8...aicommit-rs-v0.0.9) - 2025-12-10
 
 ### Added

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.6](https://github.com/mufasa71/my-rustlets/compare/reddit-wallpapers-v0.0.5...reddit-wallpapers-v0.0.6) - 2026-01-13
+
+### Other
+
+- *(main)* improve logging mechanism ([#10](https://github.com/mufasa71/my-rustlets/pull/10))
+
 ## [0.0.5](https://github.com/mufasa71/my-rustlets/compare/reddit-wallpapers-v0.0.4...reddit-wallpapers-v0.0.5) - 2025-12-10
 
 ### Fixed
