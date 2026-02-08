@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.3](https://github.com/mufasa71/my-rustlets/compare/weatherapi-rs-v0.3.2...weatherapi-rs-v0.3.3) - 2026-02-08
+
+### Fixed
+
+- *(Cargo.toml)* update dependencies
+
 ## [0.3.2](https://github.com/mufasa71/my-rustlets/compare/weatherapi-rs-v0.3.1...weatherapi-rs-v0.3.2) - 2025-12-10
 
 ### Fixed

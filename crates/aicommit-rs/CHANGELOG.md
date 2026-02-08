@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.11](https://github.com/mufasa71/my-rustlets/compare/aicommit-rs-v0.0.10...aicommit-rs-v0.0.11) - 2026-02-08
+
+### Fixed
+
+- *(Cargo.toml)* update dependencies
+
 ## [0.0.10](https://github.com/mufasa71/my-rustlets/compare/aicommit-rs-v0.0.9...aicommit-rs-v0.0.10) - 2026-01-13
 
 ### Other
