@@ -41,15 +41,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         q.push(("t", t.to_string()))
     }
 
-    let body = {
-        client
-            .get("https://www.reddit.com/r/wallpaper/top.json")
-            .query(&q)
-            .send()
-            .await?
-            .json::<RedditData>()
-            .await?
-    };
+    let response = client
+        .get("https://www.reddit.com/r/wallpaper/top.json")
+        .query(&q)
+        .send()
+        .await?;
+
+    let body = response.json::<RedditData>().await?;
 
     let mut set = JoinSet::new();
     let children = body.data.children;
