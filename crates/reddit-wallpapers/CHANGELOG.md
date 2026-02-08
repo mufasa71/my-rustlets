@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.7](https://github.com/mufasa71/my-rustlets/compare/reddit-wallpapers-v0.0.6...reddit-wallpapers-v0.0.7) - 2026-02-08
+
+### Fixed
+
+- *(Cargo.toml)* update dependencies
+
 ## [0.0.6](https://github.com/mufasa71/my-rustlets/compare/reddit-wallpapers-v0.0.5...reddit-wallpapers-v0.0.6) - 2026-01-13
 
 ### Other
