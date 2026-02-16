@@ -10,7 +10,7 @@ authors = ["Shukhrat Mukimov <mukimov@gmail.com>"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-reqwest = { version = "0.13.2", features = ["json"] }
+reqwest = { version = "0.13.2", features = ["json", "query"] }
 tokio = { version = "1.49.0", features = ["full"] }
 serde = { version = "1.0.228", features = ["derive"] }
 clap = { version = "4.5.57", features = ["derive", "cargo"] }
