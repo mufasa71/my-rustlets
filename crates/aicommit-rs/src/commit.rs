@@ -22,7 +22,7 @@ pub async fn generate_commit(
     config: Config,
 ) -> Result<String, Box<dyn std::error::Error>> {
     let system_message = "You are a commit message generator. I will provide you with a git diff, and I would like you to generate an appropriate commit message using the conventional commit format. Do not write any explanations or other words, just reply with the commit message.";
-    let mut client = OpenAIClient::builder()
+    let client = OpenAIClient::builder()
         .with_endpoint(config.openai_api_url)
         .with_api_key(config.openai_api_key)
         .build()?;
@@ -48,7 +48,7 @@ pub async fn generate_commit(
     );
 
     let result = client.chat_completion(req).await?;
-    let contents = &result.choices[0].message.content;
+    let contents = &result.inner.choices[0].message.content;
 
     match contents {
         Some(content) => Ok(content.clone()),
