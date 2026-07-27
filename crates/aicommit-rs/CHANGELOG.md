@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.12](https://github.com/mufasa71/my-rustlets/compare/aicommit-rs-v0.0.11...aicommit-rs-v0.0.12) - 2026-07-27
+
+### Other
+
+- update dependencies ([#16](https://github.com/mufasa71/my-rustlets/pull/16))
+
 ## [0.0.11](https://github.com/mufasa71/my-rustlets/compare/aicommit-rs-v0.0.10...aicommit-rs-v0.0.11) - 2026-02-08
 
 ### Fixed
