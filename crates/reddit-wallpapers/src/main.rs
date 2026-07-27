@@ -1,35 +1,44 @@
+mod access_token;
+mod app_config;
 mod cli;
 mod data;
 
 use anyhow::{Result, anyhow};
 use clap::Parser;
 use cli::Cli;
-use data::{RedditData, Wallpaper};
+use data::{AccessToken, RedditData, Wallpaper};
 use log::{Level, error, info, warn};
 use std::io::Cursor;
 use std::path::{Path, PathBuf};
 use tokio::task::JoinSet;
 
+use crate::access_token::get_access_token;
+use crate::app_config::get_app_config;
 use crate::data::RedditWallpaperError;
 
-static APP_USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"),);
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
     let output = cli.output.as_deref().unwrap_or("Pictures/Wallpapers");
     if let Some(cli_log_level) = cli.log_level {
         let log_level = match cli_log_level {
-            1 => Level::Error,
-            2 => Level::Warn,
-            3 => Level::Info,
-            4 => Level::Debug,
-            5 => Level::Trace,
-            _ => Level::Error,
+            1 => Some(Level::Error),
+            2 => Some(Level::Warn),
+            3 => Some(Level::Info),
+            4 => Some(Level::Debug),
+            5 => Some(Level::Trace),
+            _ => None,
         };
-        simple_logger::init_with_level(log_level).expect("Logger init failed");
+        if let Some(ll) = log_level {
+            simple_logger::init_with_level(ll).expect("Logger init failed");
+        }
     }
+    let app_id = cli.app_id.clone();
+    let app_secret = cli.app_secret.clone();
+    let user_agent = cli.user_agent.clone();
+    let app_config = get_app_config(app_id, app_secret, user_agent)?;
     let client = reqwest::Client::builder()
-        .user_agent(APP_USER_AGENT)
+        .user_agent(&app_config.user_agent)
         .build()?;
     let mut q: Vec<(&str, String)> = vec![];
 
@@ -41,11 +50,29 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         q.push(("t", t.to_string()))
     }
 
+    let token = match get_access_token(&client, &app_config).await {
+        Ok(token) => token,
+        Err(e) => {
+            error!("Reddit authentication failed: {:?}", e);
+            return Ok(());
+        }
+    };
+
     let response = client
-        .get("https://www.reddit.com/r/wallpaper/top.json")
+        .get("https://oauth.reddit.com/r/wallpaper/top.json")
+        .bearer_auth(&token)
         .query(&q)
         .send()
-        .await?;
+        .await
+        .and_then(|r| r.error_for_status());
+
+    let response = match response {
+        Ok(response) => response,
+        Err(e) => {
+            error!("Request to Reddit failed: {:?}", e);
+            return Ok(());
+        }
+    };
 
     let body = response.json::<RedditData>().await?;
 
@@ -61,7 +88,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let file_name = get_file_name(&url, &id);
 
         match file_name {
-            Err(e) => error!("Cannot get file name: {:?}", e),
+            Err(e) => warn!("Cannot get file name: {:?}", e),
             Ok(file_name) => {
                 let mut file_path = dirs::home_dir().expect("Home dir not found!");
                 file_path = file_path.join(output).join(file_name);
@@ -69,9 +96,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 let is_file_exists = Path::is_file(file_path.as_path());
 
                 if is_file_exists {
-                    warn!("File {:?} exists - skipping", file_path);
+                    info!("File {:?} exists - skipping", file_path);
                 } else {
-                    set.spawn(async move { download_image(&url, &file_path).await });
+                    let user_agent = app_config.user_agent.clone();
+                    set.spawn(async move {
+                        download_image(&url, &file_path, user_agent.as_str()).await
+                    });
                 }
             }
         }
@@ -106,12 +136,10 @@ fn get_file_name(url: &str, id: &str) -> Result<String> {
     }
 }
 
-async fn download_image(url: &str, file_path_buf: &PathBuf) -> Result<String> {
+async fn download_image(url: &str, file_path_buf: &PathBuf, user_agent: &str) -> Result<String> {
     info!("Download from {} to {:?}", url, file_path_buf);
 
-    let client = reqwest::Client::builder()
-        .user_agent(APP_USER_AGENT)
-        .build()?;
+    let client = reqwest::Client::builder().user_agent(user_agent).build()?;
 
     let image = client.get(url).send().await?;
 

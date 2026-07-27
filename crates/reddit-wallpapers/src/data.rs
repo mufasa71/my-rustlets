@@ -23,6 +23,11 @@ pub struct RedditData {
     pub data: TopData,
 }
 
+#[derive(Deserialize, Debug)]
+pub struct AccessToken {
+    pub access_token: String,
+}
+
 #[derive(Error, Debug)]
 pub enum RedditWallpaperError {
     #[error("Download error occuried: {0}")]
