@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.9](https://github.com/mufasa71/my-rustlets/compare/reddit-wallpapers-v0.0.8...reddit-wallpapers-v0.0.9) - 2026-07-27
+
+### Added
+
+- *(reddit-api)* add OAuth2 authentication ([#14](https://github.com/mufasa71/my-rustlets/pull/14))
+
 ## [0.0.8](https://github.com/mufasa71/my-rustlets/compare/reddit-wallpapers-v0.0.7...reddit-wallpapers-v0.0.8) - 2026-02-28
 
 ### Fixed
