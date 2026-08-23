@@ -39,8 +39,10 @@ fn env(key: &str) -> Result<String, String> {
 
 // observed max raw illuminance for this sensor
 const MAX_ILLUMINANCE: f64 = 157.0;
+// dead zone between toggle to avoid sending the same command repeatedly
 const LIGHT_THRESHOLD: f64 = 0.28;
 const DARK_THRESHOLD: f64 = 0.22;
+// zigbee2mqtt topic for the sensor
 const TOPIC: &str = "zigbee2mqtt/0xa4c138c7b629cbbd";
 
 #[tokio::main]
