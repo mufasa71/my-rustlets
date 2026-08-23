@@ -3,3 +3,4 @@
 [[package]]
 name = "lux-rs"
 release = false
+publish = false
