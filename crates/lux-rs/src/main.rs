@@ -1,5 +1,7 @@
 use std::time::Duration;
 
+use dbus::nonblock;
+use dbus_tokio::connection;
 use log::{Level, info, warn};
 use rumqttc::{AsyncClient, Event, MqttOptions, Packet, QoS};
 use serde::Deserialize;
@@ -44,6 +46,7 @@ const TOPIC: &str = "zigbee2mqtt/0xa4c138c7b629cbbd";
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     simple_logger::init_with_level(Level::Info)?;
+    // mqtt setup
     let runtime_dir = env("XDG_RUNTIME_DIR")?;
     let ha_password = env("HA_PASSWORD")?;
     let ha_user = env("HA_USERNAME")?;
@@ -53,11 +56,24 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     mqttoptions.set_credentials(ha_user, ha_password);
 
     let (client, mut eventloop) = AsyncClient::new(mqttoptions, 10);
+
+    // signal handling
     let mut sigint = signal(SignalKind::interrupt())?;
     let mut sigterm = signal(SignalKind::terminate())?;
+
+    // dbus setup
+    let (resource, conn) = connection::new_session_sync()?;
+    let mut dbus_resource = tokio::spawn(resource);
+    let proxy = nonblock::Proxy::new("rs.i3status", "/lux", Duration::from_secs(2), conn);
+
+    // cache last command sent to darkman to avoid sending the same command repeatedly
     let mut cache_command: Option<&str> = None;
     loop {
         let event = tokio::select! {
+            err = &mut dbus_resource =>{
+                warn!("lost D-Bus connection: {err:?}");
+                return Err("lost D-Bus connection".into());
+            }
             _ = sigint.recv()=> {
                 info!("SIGINT received, shutting down");
                 break;
@@ -83,7 +99,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                             illuminance: Some(lux),
                         }) => {
                             let illuminance = f64::from(lux) / MAX_ILLUMINANCE;
-                            info!("Illuminance = {:.2}%", illuminance * 100.0);
+                            let lux_percent = illuminance * 100.0;
+                            info!("Lux: {:.0}%", lux_percent);
 
                             let command = if illuminance < DARK_THRESHOLD {
                                 Some("set dark")
@@ -97,11 +114,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                 && cache_command != Some(command)
                             {
                                 match send_command(&socket_path, command).await {
-                                    Ok(()) => cache_command = Some(command),
+                                    Ok(()) => {
+                                        cache_command = Some(command);
+                                    }
                                     Err(e) => {
                                         warn!("darkman socket write failed: {e}");
                                     }
                                 }
+                            }
+                            if let Err(e) = proxy
+                                .method_call::<(), _, _, _>(
+                                    "rs.i3status.custom",
+                                    "SetText",
+                                    (format!("{lux_percent:.0}%"), String::new()),
+                                )
+                                .await
+                            {
+                                warn!("i3status SetText failed: {e}");
                             }
                         }
                         Ok(_) => {}
