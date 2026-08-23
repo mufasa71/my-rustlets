@@ -2,6 +2,7 @@
 name = "lux-rs"
 version = "0.1.0"
 edition = "2024"
+publish = false
 
 [dependencies]
 rumqttc = "0.25.1"
