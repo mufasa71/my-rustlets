@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::{env, time::Duration};
 
 use dbus::nonblock;
 use dbus_tokio::connection;
@@ -38,12 +38,11 @@ fn env(key: &str) -> Result<String, String> {
 }
 
 // observed max raw illuminance for this sensor
-const MAX_ILLUMINANCE: f64 = 157.0;
+const MAX_ILLUMINANCE: f64 = 338.0;
 // dead zone between toggle to avoid sending the same command repeatedly
-const LIGHT_THRESHOLD: f64 = 0.28;
-const DARK_THRESHOLD: f64 = 0.22;
+const LIGHT_THRESHOLD: f64 = 0.35;
+const DARK_THRESHOLD: f64 = 0.30;
 // zigbee2mqtt topic for the sensor
-const TOPIC: &str = "zigbee2mqtt/0xa4c138c7b629cbbd";
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -67,9 +66,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (resource, conn) = connection::new_session_sync()?;
     let mut dbus_resource = tokio::spawn(resource);
     let proxy = nonblock::Proxy::new("rs.i3status", "/lux", Duration::from_secs(2), conn);
+    let topic = if let Some(topic) = env::args().nth(1) {
+        topic
+    } else {
+        return Err("No topic specified".into());
+    };
 
-    // cache last command sent to darkman to avoid sending the same command repeatedly
-    let mut cache_command: Option<&str> = None;
     loop {
         let event = tokio::select! {
             err = &mut dbus_resource =>{
@@ -89,10 +91,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         match event {
             Ok(event) => match event {
                 Event::Incoming(Packet::ConnAck(_)) => {
-                    if let Err(e) = client.subscribe(TOPIC, QoS::AtMostOnce).await {
+                    if let Err(e) = client.subscribe(&topic, QoS::AtMostOnce).await {
                         warn!("Error subscribing to topic: {e}");
                     } else {
-                        info!("Subscribed to topic: {TOPIC}");
+                        info!("Subscribed to topic: {topic}");
                     }
                 }
                 Event::Incoming(Packet::Publish(publish)) => {
@@ -112,13 +114,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                 None
                             };
 
-                            if let Some(command) = command
-                                && cache_command != Some(command)
-                            {
+                            if let Some(command) = command {
                                 match send_command(&socket_path, command).await {
-                                    Ok(()) => {
-                                        cache_command = Some(command);
-                                    }
+                                    Ok(()) => {}
                                     Err(e) => {
                                         warn!("darkman socket write failed: {e}");
                                     }
