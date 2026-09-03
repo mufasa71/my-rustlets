@@ -52,6 +52,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let ha_password = env("HA_PASSWORD")?;
     let ha_user = env("HA_USERNAME")?;
     let socket_path = format!("{runtime_dir}/darkman/control.sock");
+    // TODO: make host:port configurable
     let mut mqttoptions = MqttOptions::new("lux-rs", "homeassistant", 1883);
     mqttoptions.set_keep_alive(Duration::from_secs(60));
     mqttoptions.set_credentials(ha_user, ha_password);
