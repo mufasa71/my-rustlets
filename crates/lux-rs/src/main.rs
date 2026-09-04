@@ -1,4 +1,4 @@
-use std::{env, time::Duration};
+use std::time::Duration;
 
 use dbus::nonblock;
 use dbus_tokio::connection;
@@ -42,7 +42,6 @@ const MAX_ILLUMINANCE: f64 = 338.0;
 // dead zone between toggle to avoid sending the same command repeatedly
 const LIGHT_THRESHOLD: f64 = 0.35;
 const DARK_THRESHOLD: f64 = 0.30;
-// zigbee2mqtt topic for the sensor
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -51,6 +50,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let runtime_dir = env("XDG_RUNTIME_DIR")?;
     let ha_password = env("HA_PASSWORD")?;
     let ha_user = env("HA_USERNAME")?;
+    let zigbee_lux_topic = env("HA_ZIGBEE_LUX_TOPIC")?;
     let socket_path = format!("{runtime_dir}/darkman/control.sock");
     // TODO: make host:port configurable
     let mut mqttoptions = MqttOptions::new("lux-rs", "homeassistant", 1883);
@@ -67,11 +67,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (resource, conn) = connection::new_session_sync()?;
     let mut dbus_resource = tokio::spawn(resource);
     let proxy = nonblock::Proxy::new("rs.i3status", "/lux", Duration::from_secs(2), conn);
-    let topic = if let Some(topic) = env::args().nth(1) {
-        topic
-    } else {
-        return Err("No topic specified".into());
-    };
 
     loop {
         let event = tokio::select! {
@@ -92,10 +87,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         match event {
             Ok(event) => match event {
                 Event::Incoming(Packet::ConnAck(_)) => {
-                    if let Err(e) = client.subscribe(&topic, QoS::AtMostOnce).await {
+                    if let Err(e) = client.subscribe(&zigbee_lux_topic, QoS::AtMostOnce).await {
                         warn!("Error subscribing to topic: {e}");
                     } else {
-                        info!("Subscribed to topic: {topic}");
+                        info!("Subscribed to topic: {zigbee_lux_topic}");
                     }
                 }
                 Event::Incoming(Packet::Publish(publish)) => {
