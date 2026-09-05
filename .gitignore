@@ -21,3 +21,4 @@ Cargo.lock
 .idea/
 
 fnox.toml
+fnox.local.toml

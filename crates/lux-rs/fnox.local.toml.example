@@ -1,0 +1,4 @@
+[secrets]
+HA_USERNAME = { provider = "your provider", value = "your value" }
+HA_PASSWORD = { provider = "your provider", value = "your value" }
+HA_ZIGBEE_LUX_TOPIC = { provider = "your provider", value = "your value" }
