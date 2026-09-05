@@ -5,6 +5,7 @@ edition = "2024"
 publish = false
 
 [dependencies]
+clap = { version = "4.5.57", features = ["derive", "env"] }
 rumqttc = "0.25.1"
 tokio = { version = "1.53.1", features = ["full"] }
 serde = { version = "1.0.229", features = ["derive"] }

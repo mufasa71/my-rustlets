@@ -1,5 +1,8 @@
+mod cli;
 use std::time::Duration;
 
+use clap::Parser;
+use cli::Cli;
 use dbus::nonblock;
 use dbus_tokio::connection;
 use log::{Level, info, warn};
@@ -33,10 +36,6 @@ async fn send_command(socket_path: &str, command: &str) -> std::io::Result<()> {
     stream.shutdown().await
 }
 
-fn env(key: &str) -> Result<String, String> {
-    std::env::var(key).map_err(|e| format!("{key}: {e}"))
-}
-
 // observed max raw illuminance for this sensor
 const MAX_ILLUMINANCE: f64 = 338.0;
 // dead zone between toggle to avoid sending the same command repeatedly
@@ -46,16 +45,13 @@ const DARK_THRESHOLD: f64 = 0.30;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     simple_logger::init_with_level(Level::Info)?;
+    let args = Cli::parse();
     // mqtt setup
-    let runtime_dir = env("XDG_RUNTIME_DIR")?;
-    let ha_password = env("HA_PASSWORD")?;
-    let ha_user = env("HA_USERNAME")?;
-    let zigbee_lux_topic = env("HA_ZIGBEE_LUX_TOPIC")?;
-    let socket_path = format!("{runtime_dir}/darkman/control.sock");
-    // TODO: make host:port configurable
-    let mut mqttoptions = MqttOptions::new("lux-rs", "homeassistant", 1883);
+    let runtime_dir = args.runtime_dir;
+    let zigbee_lux_topic = args.ha_zigbee_lux_topic;
+    let mut mqttoptions = MqttOptions::new("lux-rs", args.hostname, args.port);
     mqttoptions.set_keep_alive(Duration::from_secs(60));
-    mqttoptions.set_credentials(ha_user, ha_password);
+    mqttoptions.set_credentials(args.ha_username, args.ha_password);
 
     let (client, mut eventloop) = AsyncClient::new(mqttoptions, 10);
 
@@ -63,7 +59,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut sigint = signal(SignalKind::interrupt())?;
     let mut sigterm = signal(SignalKind::terminate())?;
 
-    // dbus setup
+    // darkman setup
+    let socket_path = format!("{runtime_dir}/darkman/control.sock");
+
+    // dbus i3status-rs setup
     let (resource, conn) = connection::new_session_sync()?;
     let mut dbus_resource = tokio::spawn(resource);
     let proxy = nonblock::Proxy::new("rs.i3status", "/lux", Duration::from_secs(2), conn);
