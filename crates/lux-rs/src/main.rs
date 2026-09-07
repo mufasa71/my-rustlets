@@ -37,7 +37,7 @@ async fn send_command(socket_path: &str, command: &str) -> std::io::Result<()> {
 }
 
 // observed max raw illuminance for this sensor
-const MAX_ILLUMINANCE: f64 = 338.0;
+const MAX_ILLUMINANCE: f64 = 419.0;
 // dead zone between toggle to avoid sending the same command repeatedly
 const LIGHT_THRESHOLD: f64 = 0.35;
 const DARK_THRESHOLD: f64 = 0.30;
