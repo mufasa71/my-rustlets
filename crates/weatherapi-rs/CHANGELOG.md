@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.5](https://github.com/mufasa71/my-rustlets/compare/weatherapi-rs-v0.3.4...weatherapi-rs-v0.3.5) - 2026-09-11
+
+### Other
+
+- *(config)* load RAPIDAPI_KEY from environment instead of config file ([#21](https://github.com/mufasa71/my-rustlets/pull/21))
+
 ## [0.3.4](https://github.com/mufasa71/my-rustlets/compare/weatherapi-rs-v0.3.3...weatherapi-rs-v0.3.4) - 2026-07-27
 
 ### Other
