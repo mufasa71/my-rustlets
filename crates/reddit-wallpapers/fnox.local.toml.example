@@ -1,0 +1,3 @@
+[secrets]
+REDDIT_APP_ID = ""
+REDDIT_APP_SECRET = { provider = "your provider", value = "your value" }
