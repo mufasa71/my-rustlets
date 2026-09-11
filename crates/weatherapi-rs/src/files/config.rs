@@ -6,9 +6,8 @@ pub struct Config {
 }
 
 pub fn get_config() -> Config {
-    let mut rapid_api_path = dirs::config_dir().expect("Could not find config directory");
-    rapid_api_path.push("rapidapi.toml");
-    let config_str = std::fs::read_to_string(rapid_api_path).expect("Could not read config file");
-    let config: Config = toml::from_str(&config_str).expect("Could not parse config file");
-    config
+    let api_key =
+        std::env::var("RAPIDAPI_KEY").expect("RAPIDAPI_KEY not found in environment variables");
+
+    Config { api_key }
 }
