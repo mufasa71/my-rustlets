@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.11](https://github.com/mufasa71/my-rustlets/compare/reddit-wallpapers-v0.0.10...reddit-wallpapers-v0.0.11) - 2026-09-16
+
+### Other
+
+- *(config)* remove obsolete fnox local example files
+
 ## [0.0.10](https://github.com/mufasa71/my-rustlets/compare/reddit-wallpapers-v0.0.9...reddit-wallpapers-v0.0.10) - 2026-09-11
 
 ### Other
