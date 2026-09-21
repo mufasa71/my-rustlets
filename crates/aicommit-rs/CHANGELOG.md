@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.13](https://github.com/mufasa71/my-rustlets/compare/aicommit-rs-v0.0.12...aicommit-rs-v0.0.13) - 2026-09-21
+
+### Added
+
+- *(cli)* [**breaking**] add required --api-key, --api-url, and --model flags with env support ([#23](https://github.com/mufasa71/my-rustlets/pull/23))
+
 ## [0.0.12](https://github.com/mufasa71/my-rustlets/compare/aicommit-rs-v0.0.11...aicommit-rs-v0.0.12) - 2026-07-27
 
 ### Other
