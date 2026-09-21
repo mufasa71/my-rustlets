@@ -2,10 +2,10 @@ use std::path::PathBuf;
 
 use aicommit_rs::{
     commit::{generate_commit, read_template},
-    config::get_config,
+    config::Config,
     diff::get_diff,
 };
-use clap::{Command, ValueHint, arg, crate_version, value_parser};
+use clap::{Arg, Command, ValueHint, arg, crate_version, value_parser};
 
 fn build_cli() -> Command {
     let mut template_path = dirs::home_dir().expect("home dir expected");
@@ -23,6 +23,22 @@ Then, you can select a commit message from the list and use it to commit your ch
                 .required(false)
                 .value_parser(value_parser!(PathBuf)),
         )
+        .arg(
+            Arg::new("api-key")
+                .long("api-key")
+                .value_name("API_KEY")
+                .help("Specify OpenAI API key")
+                .required(true)
+                .env("AI_COMMIT_API_KEY"),
+        )
+        .arg(
+            Arg::new("api-url")
+                .long("api-url")
+                .value_name("API_URL")
+                .help("Specify OpenAI API endpoint")
+                .required(true),
+        )
+        .arg(arg!(--model <MODEL_NAME> "Specify model name").required(true))
         .arg(arg!(--usage "Show usage").required(false))
 }
 
@@ -37,7 +53,20 @@ async fn main() {
         return;
     }
 
-    let config = get_config();
+    let config = Config {
+        openai_api_key: matches
+            .get_one::<String>("api-key")
+            .expect("API key is required")
+            .to_string(),
+        openai_api_url: matches
+            .get_one::<String>("api-url")
+            .expect("API URL is required")
+            .to_string(),
+        model_name: matches
+            .get_one::<String>("model")
+            .expect("Model name is required")
+            .to_string(),
+    };
     let diff = get_diff().expect("Error getting diff");
     let template = read_template(
         matches
@@ -48,7 +77,7 @@ async fn main() {
 
     let result = generate_commit(template.replace("{{diff}}", &diff), config)
         .await
-        .expect_err("Error generating commit");
+        .expect("Error generating commit");
 
     println!("{}", result);
 }
