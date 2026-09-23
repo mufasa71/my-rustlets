@@ -13,6 +13,7 @@ use tokio::{
     net::UnixStream,
     signal::unix::{SignalKind, signal},
 };
+use uuid::Uuid;
 
 // Systemd service file for this program:
 // Restart=on-failure
@@ -49,7 +50,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // mqtt setup
     let runtime_dir = args.runtime_dir;
     let zigbee_lux_topic = args.ha_zigbee_lux_topic;
-    let mut mqttoptions = MqttOptions::new("lux-rs", args.hostname, args.port);
+    let mut mqttoptions = MqttOptions::new(Uuid::new_v4(), args.hostname, args.port);
     mqttoptions.set_keep_alive(Duration::from_secs(60));
     mqttoptions.set_credentials(args.ha_username, args.ha_password);
 
