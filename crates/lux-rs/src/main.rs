@@ -37,12 +37,6 @@ async fn send_command(socket_path: &str, command: &str) -> std::io::Result<()> {
     stream.shutdown().await
 }
 
-// observed max raw illuminance for this sensor
-const MAX_ILLUMINANCE: f64 = 450.0;
-// dead zone between toggle to avoid sending the same command repeatedly
-const LIGHT_THRESHOLD: f64 = 0.35;
-const DARK_THRESHOLD: f64 = 0.30;
-
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     simple_logger::init_with_level(Level::Info)?;
@@ -98,13 +92,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         Ok(Message {
                             illuminance: Some(lux),
                         }) => {
-                            let illuminance = f64::from(lux) / MAX_ILLUMINANCE;
+                            let illuminance = f64::from(lux) / args.max_illuminance;
                             let lux_percent = illuminance * 100.0;
                             info!("Lux: {:.0}%", lux_percent);
 
-                            let command = if illuminance < DARK_THRESHOLD {
+                            let command = if illuminance < args.dark_threshold {
                                 Some("set dark")
-                            } else if illuminance > LIGHT_THRESHOLD {
+                            } else if illuminance > args.light_threshold {
                                 Some("set light")
                             } else {
                                 None
