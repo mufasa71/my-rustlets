@@ -80,6 +80,10 @@ enum StateToCode {
     Fog,
     #[strum(serialize = "partlycloudy", to_string = "weather_partly_cloudy")]
     PartlyCloudy,
+    #[strum(serialize = "sun", to_string = "weather_sun")]
+    Sun,
+    #[strum(serialize = "snow", to_string = "weather_snow")]
+    Snow,
 }
 
 fn get_icon(payload: &Payload) -> String {
@@ -91,7 +95,7 @@ fn get_icon(payload: &Payload) -> String {
                 return code.to_string();
             }
 
-            String::from("")
+            format!("{code}_night")
         }
         Err(_) => String::from(""),
     }
