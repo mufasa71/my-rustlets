@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.6](https://github.com/mufasa71/my-rustlets/compare/weatherapi-rs-v0.3.5...weatherapi-rs-v0.3.6) - 2026-10-04
+
+### Other
+
+- Next ([#27](https://github.com/mufasa71/my-rustlets/pull/27))
+
 ## [0.3.5](https://github.com/mufasa71/my-rustlets/compare/weatherapi-rs-v0.3.4...weatherapi-rs-v0.3.5) - 2026-09-11
 
 ### Other

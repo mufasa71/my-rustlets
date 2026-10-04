@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.12](https://github.com/mufasa71/my-rustlets/compare/reddit-wallpapers-v0.0.11...reddit-wallpapers-v0.0.12) - 2026-10-04
+
+### Other
+
+- Next ([#27](https://github.com/mufasa71/my-rustlets/pull/27))
+
 ## [0.0.11](https://github.com/mufasa71/my-rustlets/compare/reddit-wallpapers-v0.0.10...reddit-wallpapers-v0.0.11) - 2026-09-16
 
 ### Other
