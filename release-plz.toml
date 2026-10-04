@@ -4,3 +4,13 @@
 name = "lux-rs"
 release = false
 publish = false
+
+[[package]]
+name = "sensor-forecast"
+release = false
+publish = false
+
+[[package]]
+name = "sensor-room-therm"
+release = false
+publish = false
