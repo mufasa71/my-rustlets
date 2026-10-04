@@ -78,6 +78,8 @@ enum StateToCode {
     WeatherClouds,
     #[strum(serialize = "fog", to_string = "weather_fog")]
     Fog,
+    #[strum(serialize = "partlycloudy", to_string = "weather_partly_cloudy")]
+    PartlyCloudy,
 }
 
 fn get_icon(payload: &Payload) -> String {
