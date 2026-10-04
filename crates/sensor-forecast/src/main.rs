@@ -80,7 +80,7 @@ enum StateToCode {
     Fog,
     #[strum(serialize = "partlycloudy", to_string = "weather_partly_cloudy")]
     PartlyCloudy,
-    #[strum(serialize = "sun", to_string = "weather_sun")]
+    #[strum(serialize = "sun", serialize = "clear-night", to_string = "weather_sun")]
     Sun,
     #[strum(serialize = "snow", to_string = "weather_snow")]
     Snow,
