@@ -80,10 +80,28 @@ enum StateToCode {
     Fog,
     #[strum(serialize = "partlycloudy", to_string = "weather_partly_cloudy")]
     PartlyCloudy,
-    #[strum(serialize = "sun", serialize = "clear-night", to_string = "weather_sun")]
+    #[strum(serialize = "sunny", serialize = "clear-night", to_string = "weather_sun")]
     Sun,
-    #[strum(serialize = "snow", to_string = "weather_snow")]
+    #[strum(serialize = "snowy", to_string = "weather_snow")]
     Snow,
+    #[strum(serialize = "snowy-rainy", to_string = "weather_snow_rain")]
+    SnowRain,
+    #[strum(serialize = "rainy", to_string = "weather_rain")]
+    Rain,
+    #[strum(serialize = "pouring", to_string = "weather_pouring")]
+    Pouring,
+    #[strum(serialize = "hail", to_string = "weather_hail")]
+    Hail,
+    #[strum(serialize = "lightning", to_string = "weather_thunder")]
+    Thunder,
+    #[strum(serialize = "lightning-rainy", to_string = "weather_thunder_rain")]
+    ThunderRain,
+    #[strum(serialize = "windy", to_string = "weather_wind")]
+    Wind,
+    #[strum(serialize = "windy-variant", to_string = "weather_wind_clouds")]
+    WindClouds,
+    #[strum(serialize = "exceptional", to_string = "weather_exceptional")]
+    Exceptional,
 }
 
 fn get_icon(payload: &Payload) -> String {
@@ -97,6 +115,6 @@ fn get_icon(payload: &Payload) -> String {
 
             format!("{code}_night")
         }
-        Err(_) => String::from(""),
+        Err(_) => String::from("weather_default"),
     }
 }
