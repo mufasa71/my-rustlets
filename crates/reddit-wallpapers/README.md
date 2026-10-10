@@ -18,4 +18,5 @@ Read more in the [Reddit OAuth2 documentation](https://github.com/reddit-archive
 --output # directory where images are stored
 --limit # maximum number of items to fetch (default: 25, maximum: 100)
 --t # one of: hour, day, week, month, year, all
+--classify # classify wallpapers as dark or light by average brightness
 ```
