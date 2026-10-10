@@ -14,6 +14,7 @@ Read more in the [Reddit OAuth2 documentation](https://github.com/reddit-archive
 --app_id # Reddit app ID
 --app_secret # Reddit app secret
 --user_agent # user agent that identifies your app to Reddit
+  (default: linux:reddit-wallpapers:0.0.13 (by /u/insider999))
 --debug # debug level (1 to 6) (default: 3)
 --output # directory where images are stored (default: ~/Pictures/Wallpapers)
 --limit # maximum number of items to fetch (default: 25, maximum: 100)
