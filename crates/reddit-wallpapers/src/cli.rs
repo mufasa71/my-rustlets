@@ -20,7 +20,7 @@ pub enum Time {
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 pub struct Cli {
-    #[arg(short, long)]
+    #[arg(short, long, help = "default is Pictures/Wallpapers")]
     pub output: Option<String>,
     #[arg(
         long,
