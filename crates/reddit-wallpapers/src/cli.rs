@@ -30,7 +30,7 @@ pub struct Cli {
     pub log_level: Option<u8>,
     #[arg(short, long, long_help = "the maximum number of items desired (default: 25, maximum: 100)", value_parser = clap::value_parser!(u8).range(1..100))]
     pub limit: Option<u8>,
-    #[arg(short, value_enum)]
+    #[arg(short, value_enum, help = "time filter")]
     pub t: Option<Time>,
     #[arg(
         long,
