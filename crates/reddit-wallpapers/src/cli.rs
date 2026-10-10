@@ -20,7 +20,7 @@ pub enum Time {
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 pub struct Cli {
-    #[arg(short, long)]
+    #[arg(short, long, help = "default is Pictures/Wallpapers")]
     pub output: Option<String>,
     #[arg(
         long,
@@ -30,7 +30,7 @@ pub struct Cli {
     pub log_level: Option<u8>,
     #[arg(short, long, long_help = "the maximum number of items desired (default: 25, maximum: 100)", value_parser = clap::value_parser!(u8).range(1..100))]
     pub limit: Option<u8>,
-    #[arg(short, value_enum)]
+    #[arg(short, value_enum, help = "time filter")]
     pub t: Option<Time>,
     #[arg(
         long,
@@ -44,4 +44,10 @@ pub struct Cli {
         long_help = "plain text string describing what the app does and who the author is. WallpapersDownloader (by /u/Watchful1)"
     )]
     pub user_agent: Option<String>,
+    #[arg(
+        long,
+        long_help = "classify wallpapers as dark or light by average brightness and move them into the sorted/ folder",
+        default_value_t = false
+    )]
+    pub classify: bool,
 }
