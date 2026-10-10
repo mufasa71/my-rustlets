@@ -44,4 +44,10 @@ pub struct Cli {
         long_help = "plain text string describing what the app does and who the author is. WallpapersDownloader (by /u/Watchful1)"
     )]
     pub user_agent: Option<String>,
+    #[arg(
+        long,
+        long_help = "classify wallpapers as dark or light by average brightness and move them into the sorted/ folder",
+        default_value_t = false
+    )]
+    pub classify: bool,
 }
