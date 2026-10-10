@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.13](https://github.com/mufasa71/my-rustlets/compare/reddit-wallpapers-v0.0.12...reddit-wallpapers-v0.0.13) - 2026-10-10
+
+### Added
+
+- *(cli)* add  flag to sort wallpapers by brightness ([#30](https://github.com/mufasa71/my-rustlets/pull/30))
+
 ## [0.0.12](https://github.com/mufasa71/my-rustlets/compare/reddit-wallpapers-v0.0.11...reddit-wallpapers-v0.0.12) - 2026-10-04
 
 ### Other
