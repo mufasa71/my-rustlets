@@ -1,19 +1,13 @@
 mod cli;
-use std::time::Duration;
 
 use clap::Parser;
-use cli::Cli;
-use dbus::nonblock;
-use dbus_tokio::connection;
+use dbus::nonblock::{Proxy, SyncConnection};
 use log::{Level, info, warn};
-use rumqttc::{AsyncClient, Event, MqttOptions, Packet, QoS};
+use mqtt_to_dbus::{DBus, MqttToDbus};
 use serde::Deserialize;
-use tokio::{
-    io::AsyncWriteExt,
-    net::UnixStream,
-    signal::unix::{SignalKind, signal},
-};
-use uuid::Uuid;
+use tokio::{io::AsyncWriteExt, net::UnixStream};
+
+use crate::cli::LuxCli;
 
 // Systemd service file for this program:
 // Restart=on-failure
@@ -24,9 +18,9 @@ use uuid::Uuid;
 
 // Example message from zigbee2mqtt:
 // {"battery":80,"illuminance":5,"linkquality":160,"voltage":2800}
-#[derive(Deserialize)]
-struct Message {
-    illuminance: Option<u32>,
+#[derive(Deserialize, Debug)]
+struct Payload {
+    illuminance: u32,
 }
 
 async fn send_command(socket_path: &str, command: &str) -> std::io::Result<()> {
@@ -37,103 +31,78 @@ async fn send_command(socket_path: &str, command: &str) -> std::io::Result<()> {
     stream.shutdown().await
 }
 
+struct DBusLux {
+    max_illuminance: f64,
+    dark_threshold: f64,
+    light_threshold: f64,
+    socket_path: String,
+}
+
+#[async_trait::async_trait]
+impl mqtt_to_dbus::Handler for DBusLux {
+    async fn handle(
+        &self,
+        bytes: &[u8],
+        proxy: Proxy<'_, std::sync::Arc<SyncConnection>>,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let payload: Payload = serde_json::from_slice(bytes)?;
+        info!("Received payload: {:?}", payload);
+
+        let illuminance = f64::from(payload.illuminance) / self.max_illuminance;
+        let lux_percent = illuminance * 100.0;
+        info!("Lux: {:.0}%", lux_percent);
+
+        let command = if illuminance < self.dark_threshold {
+            Some("set dark")
+        } else if illuminance > self.light_threshold {
+            Some("set light")
+        } else {
+            None
+        };
+
+        if let Some(command) = command {
+            match send_command(&self.socket_path, command).await {
+                Ok(()) => {}
+                Err(e) => {
+                    warn!("darkman socket write failed: {e}");
+                }
+            }
+        }
+        if let Err(e) = proxy
+            .method_call::<(), _, _, _>(
+                "rs.i3status.custom",
+                "SetText",
+                (format!("{lux_percent:.0}%"), String::new()),
+            )
+            .await
+        {
+            warn!("i3status SetText failed: {e}");
+        }
+
+        Ok(())
+    }
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     simple_logger::init_with_level(Level::Info)?;
-    let args = Cli::parse();
-    // mqtt setup
-    let runtime_dir = args.runtime_dir;
-    let zigbee_lux_topic = args.ha_zigbee_lux_topic;
-    let mut mqttoptions = MqttOptions::new(Uuid::new_v4(), args.hostname, args.port);
-    mqttoptions.set_keep_alive(Duration::from_secs(60));
-    mqttoptions.set_credentials(args.ha_username, args.ha_password);
+    let cli = LuxCli::parse();
+    let handler = DBusLux {
+        max_illuminance: cli.max_illuminance,
+        dark_threshold: cli.dark_threshold,
+        light_threshold: cli.light_threshold,
+        socket_path: format!("{}/darkman/control.sock", cli.runtime_dir),
+    };
+    let mqtt_to_dbus = MqttToDbus::new(
+        cli.mqtt,
+        DBus {
+            dest: "rs.i3status".to_string(),
+            path: "/lux".to_string(),
+            handler,
+        },
+    );
 
-    let (client, mut eventloop) = AsyncClient::new(mqttoptions, 10);
-
-    // signal handling
-    let mut sigint = signal(SignalKind::interrupt())?;
-    let mut sigterm = signal(SignalKind::terminate())?;
-
-    // darkman setup
-    let socket_path = format!("{runtime_dir}/darkman/control.sock");
-
-    // dbus i3status-rs setup
-    let (resource, conn) = connection::new_session_sync()?;
-    let mut dbus_resource = tokio::spawn(resource);
-    let proxy = nonblock::Proxy::new("rs.i3status", "/lux", Duration::from_secs(2), conn);
-
-    loop {
-        let event = tokio::select! {
-            err = &mut dbus_resource =>{
-                warn!("lost D-Bus connection: {err:?}");
-                return Err("lost D-Bus connection".into());
-            }
-            _ = sigint.recv()=> {
-                info!("SIGINT received, shutting down");
-                break;
-            }
-            _ = sigterm.recv()=> {
-                info!("SIGTERM received, shutting down");
-                break;
-            }
-            event = eventloop.poll() => event,
-        };
-        match event {
-            Ok(event) => match event {
-                Event::Incoming(Packet::ConnAck(_)) => {
-                    if let Err(e) = client.subscribe(&zigbee_lux_topic, QoS::AtMostOnce).await {
-                        warn!("Error subscribing to topic: {e}");
-                    } else {
-                        info!("Subscribed to topic: {zigbee_lux_topic}");
-                    }
-                }
-                Event::Incoming(Packet::Publish(publish)) => {
-                    match serde_json::from_slice::<Message>(publish.payload.as_ref()) {
-                        Ok(Message {
-                            illuminance: Some(lux),
-                        }) => {
-                            let illuminance = f64::from(lux) / args.max_illuminance;
-                            let lux_percent = illuminance * 100.0;
-                            info!("Lux: {:.0}%", lux_percent);
-
-                            let command = if illuminance < args.dark_threshold {
-                                Some("set dark")
-                            } else if illuminance > args.light_threshold {
-                                Some("set light")
-                            } else {
-                                None
-                            };
-
-                            if let Some(command) = command {
-                                match send_command(&socket_path, command).await {
-                                    Ok(()) => {}
-                                    Err(e) => {
-                                        warn!("darkman socket write failed: {e}");
-                                    }
-                                }
-                            }
-                            if let Err(e) = proxy
-                                .method_call::<(), _, _, _>(
-                                    "rs.i3status.custom",
-                                    "SetText",
-                                    (format!("{lux_percent:.0}%"), String::new()),
-                                )
-                                .await
-                            {
-                                warn!("i3status SetText failed: {e}");
-                            }
-                        }
-                        Ok(_) => {}
-                        Err(e) => warn!("Could not parse payload: {e}"),
-                    }
-                }
-                _ => {}
-            },
-            Err(e) => {
-                warn!("{e}");
-            }
-        }
-    }
+    mqtt_to_dbus.run().await?;
 
     Ok(())
 }
