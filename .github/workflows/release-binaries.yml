@@ -16,22 +16,26 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.repository_owner == 'mufasa71' }}
     steps:
+      - uses: actions/checkout@v7
       - name: Resolve crate from release tag
         id: crate
         env:
           TAG: ${{ github.event.release.tag_name }}
+        shell: python
         run: |
-          crate="${TAG%-v*}"
-          case "$crate" in
-            lux-rs|sensor-forecast|sensor-room-therm)
-              echo "name=$crate" >> "$GITHUB_OUTPUT"
-              ;;
-            *)
-              echo "No binaries to release for $TAG"
-              ;;
-          esac
-      - uses: actions/checkout@v7
-        if: steps.crate.outputs.name != ''
+          import os, tomllib
+
+          # Crates released via git tags only (not crates.io) get binaries.
+          with open("release-plz.toml", "rb") as f:
+              cfg = tomllib.load(f)
+          crates = {p["name"] for p in cfg.get("package", []) if p.get("git_only")}
+
+          crate = os.environ["TAG"].rsplit("-v", 1)[0]
+          if crate in crates:
+              with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+                  out.write(f"name={crate}\n")
+          else:
+              print(f"No binaries to release for {os.environ['TAG']}")
       - name: Install packages
         if: steps.crate.outputs.name != ''
         run: sudo apt install -y libdbus-1-dev pkg-config
