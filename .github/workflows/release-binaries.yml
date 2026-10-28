@@ -1,0 +1,49 @@
+name: Release binaries
+
+permissions:
+  contents: write
+
+on:
+  release:
+    types: [published]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  upload-assets:
+    name: Upload binaries
+    runs-on: ubuntu-latest
+    if: ${{ github.repository_owner == 'mufasa71' }}
+    steps:
+      - name: Resolve crate from release tag
+        id: crate
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          crate="${TAG%-v*}"
+          case "$crate" in
+            lux-rs|sensor-forecast|sensor-room-therm)
+              echo "name=$crate" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "No binaries to release for $TAG"
+              ;;
+          esac
+      - uses: actions/checkout@v7
+        if: steps.crate.outputs.name != ''
+      - name: Install packages
+        if: steps.crate.outputs.name != ''
+        run: sudo apt install -y libdbus-1-dev pkg-config
+      - name: Install Rust toolchain
+        if: steps.crate.outputs.name != ''
+        uses: dtolnay/rust-toolchain@stable
+      - name: Build and upload binary
+        if: steps.crate.outputs.name != ''
+        uses: taiki-e/upload-rust-binary-action@v1
+        with:
+          bin: ${{ steps.crate.outputs.name }}
+          manifest-path: crates/${{ steps.crate.outputs.name }}/Cargo.toml
+          target: x86_64-unknown-linux-gnu
+          ref: refs/tags/${{ github.event.release.tag_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
