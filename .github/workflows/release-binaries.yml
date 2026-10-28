@@ -17,25 +17,21 @@ jobs:
     if: ${{ github.repository_owner == 'mufasa71' }}
     steps:
       - uses: actions/checkout@v7
-      - name: Resolve crate from release tag
+      - name: Resolve binaries from release tag
         id: crate
         env:
           TAG: ${{ github.event.release.tag_name }}
-        shell: python
         run: |
-          import os, tomllib
-
-          # Crates released via git tags only (not crates.io) get binaries.
-          with open("release-plz.toml", "rb") as f:
-              cfg = tomllib.load(f)
-          crates = {p["name"] for p in cfg.get("package", []) if p.get("git_only")}
-
-          crate = os.environ["TAG"].rsplit("-v", 1)[0]
-          if crate in crates:
-              with open(os.environ["GITHUB_OUTPUT"], "a") as out:
-                  out.write(f"name={crate}\n")
-          else:
-              print(f"No binaries to release for {os.environ['TAG']}")
+          # Release-plz tags are "<package>-v<version>"; library-only crates are skipped.
+          crate="${TAG%-v*}"
+          bins=$(cargo metadata --no-deps --format-version 1 | jq -r --arg crate "$crate" \
+            '.packages[] | select(.name == $crate) | [.targets[] | select(.kind | index("bin")) | .name] | join(",")')
+          if [ -n "$bins" ]; then
+            echo "name=$crate" >> "$GITHUB_OUTPUT"
+            echo "bins=$bins" >> "$GITHUB_OUTPUT"
+          else
+            echo "No binaries to release for $TAG"
+          fi
       - name: Install packages
         if: steps.crate.outputs.name != ''
         run: sudo apt install -y libdbus-1-dev pkg-config
@@ -46,7 +42,7 @@ jobs:
         if: steps.crate.outputs.name != ''
         uses: taiki-e/upload-rust-binary-action@v1
         with:
-          bin: ${{ steps.crate.outputs.name }}
+          bin: ${{ steps.crate.outputs.bins }}
           manifest-path: crates/${{ steps.crate.outputs.name }}/Cargo.toml
           target: x86_64-unknown-linux-gnu
           ref: refs/tags/${{ github.event.release.tag_name }}
