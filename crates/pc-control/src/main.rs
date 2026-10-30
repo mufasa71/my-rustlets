@@ -5,6 +5,7 @@ use dbus::{
     arg::{RefArg, Variant},
     nonblock::{Proxy, SyncConnection},
 };
+use dbus_tokio::connection;
 use log::{Level, info};
 use mqtt_to_dbus::{DBus, MqttToDbus, cli::Cli};
 use serde::Deserialize;
@@ -17,6 +18,27 @@ struct Payload {
 const PLAYER_INTERFACE: &str = "org.mpris.MediaPlayer2.Player";
 
 struct DBusPCControl {}
+
+impl DBusPCControl {
+    async fn sleep(&self) -> Result<(), Box<dyn std::error::Error>> {
+        let (resource, conn) = connection::new_system_sync()?;
+        tokio::spawn(async move {
+            let _ = resource.await;
+        });
+
+        let logind = Proxy::new(
+            "org.freedesktop.login1",
+            "/org/freedesktop/login1",
+            Duration::from_secs(5),
+            conn,
+        );
+        let _: () = logind
+            .method_call("org.freedesktop.login1.Manager", "Suspend", (true,))
+            .await?;
+
+        Ok(())
+    }
+}
 
 #[async_trait::async_trait]
 impl mqtt_to_dbus::Handler for DBusPCControl {
@@ -31,15 +53,7 @@ impl mqtt_to_dbus::Handler for DBusPCControl {
         let command = payload.command.as_str();
 
         if command == "sleep" {
-            let logind = Proxy::new(
-                "org.freedesktop.login1",
-                "/org/freedesktop/login1",
-                Duration::from_secs(5),
-                proxy.connection.clone(),
-            );
-            let _: () = logind
-                .method_call("org.freedesktop.login1.Manager", "Suspend", (true,))
-                .await?;
+            self.sleep().await?;
 
             return Ok(());
         }
