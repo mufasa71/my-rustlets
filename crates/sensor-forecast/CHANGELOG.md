@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1](https://github.com/mufasa71/my-rustlets/compare/sensor-forecast-v0.1.0...sensor-forecast-v0.1.1) - 2026-10-30
+
+### Other
+
+- release v0.1.0 ([#35](https://github.com/mufasa71/my-rustlets/pull/35))
+
 ## [0.1.0](https://github.com/mufasa71/my-rustlets/releases/tag/sensor-forecast-v0.1.0) - 2026-10-28
 
 ### Added
