@@ -16,6 +16,11 @@ git_only = true
 publish = false
 
 [[package]]
+name = "pc-control"
+git_only = true
+publish = false
+
+[[package]]
 name = "mqtt-to-dbus"
 release = false
 publish = false
